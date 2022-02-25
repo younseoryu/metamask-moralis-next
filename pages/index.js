@@ -71,13 +71,23 @@ export default function Home() {
 			tokenAddress: values.tokenAddress,
 			tokenId: values.tokenId,
 			tokenType: "ERC721",
-			amount: 0.0000,
+			amount: 0.0001,
 			userAddress: web3Account,
+      // WETH (Wrapped ETH) is a currency that allows users to make pre-authorized bids that can be fulfilled at a later date without any further action from the bidder. 
+      // WETH is used to buy and sell with auctions on OpenSea. 
 			paymentTokenAddress: "0xc778417e063141139fce010982780140aa0cd5ab",
 		});
 
 		console.log("Create Buy Order Successful");
 	};
+
+  const fulfillOrder = async () => {
+    await Moralis.Plugins.opensea.fulfillOrder({
+      network: 'mainnet',
+      userAddress: web3Account,
+      order: {},
+    });
+  }
 
   useEffect(() => {
 		if (isInitialized) {
@@ -130,9 +140,10 @@ export default function Home() {
           <button onClick={createBuyOrder}>
             createBuyOrder
           </button>
-          <button onClick={getAsset}>
-            getAsset
+          <button onClick={fulfillOrder}>
+            fulfillOrder
           </button>
+          
         </>
       ) : (
         <button
