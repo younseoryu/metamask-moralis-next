@@ -20,7 +20,7 @@ export default function Home() {
 
 
 
-  const [values, setValues] = useState({ tokenAddress: "", tokenId: "" });
+  const [values, setValues] = useState({ tokenAddress: "", tokenId: "", ethAmount: "" });
   const web3Account = useMemo(
 		() => isAuthenticated && user.get("accounts")[0],
 		[user, isAuthenticated],
@@ -119,6 +119,7 @@ export default function Home() {
           <div>{web3Account}</div>
           <div>{values.tokenAddress} </div>
           <div>{values.tokenId} </div>
+		  <div>{values.ethAmount} </div>
           <label>
             NFT Token Address:
             <input type="text" onChange={(e) =>
@@ -129,6 +130,12 @@ export default function Home() {
             NFT Token ID:
             <input type="text" onChange={(e) =>
 							setValues({ ...values, tokenId: e.target.value })
+						} />
+          </label> <br></br>
+		  <label>
+            ETH amount (for creating an order):
+            <input type="text" onChange={(e) =>
+							setValues({ ...values, ethAmount: parseFloat(e.target.value) })
 						} />
           </label> <br></br>
           <button onClick={getAsset}>
