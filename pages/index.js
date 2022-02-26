@@ -5,18 +5,14 @@ import React, { useState, useEffect, useMemo } from "react";
 
 import * as Web3 from 'web3'
 import { OpenSeaPort, Network } from 'opensea-js'
+// This function detects most providers injected at window.ethereum
+import detectEthereumProvider from '@metamask/detect-provider';
 
-// This example provider won't let you make transactions, only read-only calls:
-const provider = new Web3.providers.HttpProvider('https://rinkeby.infura.io/v3/6c339c4dca8645d1b927a98293b98f6c')
-
-const seaport = new OpenSeaPort(provider, {
-// 	networkName: Network.Main,
-//   apiKey: '2d3ddf54946e4569b7cd1df8daca6e4a'
-  networkName: Network.Rinkeby,
-	apiKey: '5bec8ae0372044cab1bef0d866c98618' //testnet
-})
 
 export default function Home() {
+
+
+
 
 
 
@@ -103,11 +99,31 @@ export default function Home() {
   }
 
   	const getAssetOpensea = async () => {
+		const provider =  await detectEthereumProvider();
+
+		if (provider) {
+			// From now on, this should always be true:
+			// provider === window.ethereum
+
+			const seaport = new OpenSeaPort(provider, {
+				// 	networkName: Network.Main,
+				//   apiKey: '2d3ddf54946e4569b7cd1df8daca6e4a'
+				networkName: Network.Rinkeby,
+				apiKey: '5bec8ae0372044cab1bef0d866c98618' //testnet
+			})
+
 		const asset = await seaport.api.getAsset({
 			tokenAddress: values.tokenAddress,
 			tokenId: values.tokenId,
 		})
 		console.log(asset);
+
+		} else {
+			console.log('Please install MetaMask!');
+		}
+	
+		
+
 	};
 
 	const getOrderOpensea = async () => {
@@ -144,6 +160,19 @@ export default function Home() {
 	};
 
 	const fulfillOrderOpensea = async () => {
+
+		const provider = await detectEthereumProvider();
+
+		if (provider) {
+		// From now on, this should always be true:
+		// provider === window.ethereum
+		const seaport = new OpenSeaPort(provider, {
+			// 	networkName: Network.Main,
+			//   apiKey: '2d3ddf54946e4569b7cd1df8daca6e4a'
+			networkName: Network.Rinkeby,
+			apiKey: '5bec8ae0372044cab1bef0d866c98618' //testnet
+		})
+
 		const { orders, count } = await seaport.api.getOrders({
 			asset_contract_address: values.tokenAddress,
 			token_id: values.tokenId,
@@ -155,6 +184,22 @@ export default function Home() {
 			order:  orders[0], accountAddress: web3Account 
 		}).catch(err => console.log(err));
 		console.log(transactionHash)
+		} else {
+		console.log('Please install MetaMask!');
+		}
+
+
+		// const { orders, count } = await seaport.api.getOrders({
+		// 	asset_contract_address: values.tokenAddress,
+		// 	token_id: values.tokenId,
+		// 	side: 1,// 1: sell order,
+		// 	sale_kind: 0 // 0: fixed price
+		// }).catch(err => console.log(err));
+
+		// const transactionHash = await seaport.fulfillOrder({ 
+		// 	order:  orders[0], accountAddress: web3Account 
+		// }).catch(err => console.log(err));
+		// console.log(transactionHash)
 	}
 
 
