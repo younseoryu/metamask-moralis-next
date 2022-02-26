@@ -3,6 +3,19 @@ import { useMoralis } from "react-moralis";
 import styles from "../styles/Home.module.css";
 import React, { useState, useEffect, useMemo } from "react";
 
+import * as Web3 from 'web3'
+import { OpenSeaPort, Network } from 'opensea-js'
+
+// This example provider won't let you make transactions, only read-only calls:
+const provider = new Web3.providers.HttpProvider('https://rinkeby.infura.io/v3/6c339c4dca8645d1b927a98293b98f6c')
+
+const seaport = new OpenSeaPort(provider, {
+// 	networkName: Network.Main,
+//   apiKey: '2d3ddf54946e4569b7cd1df8daca6e4a'
+  networkName: Network.Rinkeby,
+	apiKey: '5bec8ae0372044cab1bef0d866c98618' //testnet
+})
+
 export default function Home() {
 
 
@@ -28,7 +41,7 @@ export default function Home() {
 
 	const getAsset = async () => {
 		const res = await Moralis.Plugins.opensea.getAsset({
-			network: "mainnet",
+			network: "testnet",
 			tokenAddress: values.tokenAddress,
 			tokenId: values.tokenId,
 		});
@@ -37,13 +50,13 @@ export default function Home() {
 
 	const getOrder = async () => {
 		const res = await Moralis.Plugins.opensea.getOrders({
-			network: "mainnet",
+			network: "testnet",
 			tokenAddress: values.tokenAddress,
 			tokenId: values.tokenId,
-			orderSide: 0,
+			orderSide: 1,
 			page: 1, // pagination shows 20 orders each page
 		});
-		console.log(res);
+		console.log(res.orders[0]);
 	};
 
 	const createSellOrder = async () => {
@@ -52,7 +65,7 @@ export default function Home() {
 		const endAmount = 1;
 
 		await Moralis.Plugins.opensea.createSellOrder({
-			network: "mainnet",
+			network: "testnet",
 			tokenAddress: values.tokenAddress,
 			tokenId: values.tokenId,
 			tokenType: "ERC1155",
@@ -67,7 +80,7 @@ export default function Home() {
 
 	const createBuyOrder = async () => {
 		await Moralis.Plugins.opensea.createBuyOrder({
-			network: "mainnet",
+			network: "testnet",
 			tokenAddress: values.tokenAddress,
 			tokenId: values.tokenId,
 			tokenType: "ERC721",
@@ -75,19 +88,75 @@ export default function Home() {
 			userAddress: web3Account,
       // WETH (Wrapped ETH) is a currency that allows users to make pre-authorized bids that can be fulfilled at a later date without any further action from the bidder. 
       // WETH is used to buy and sell with auctions on OpenSea. 
-			paymentTokenAddress: "0xc778417e063141139fce010982780140aa0cd5ab",
+			// paymentTokenAddress: "0xc778417e063141139fce010982780140aa0cd5ab",
+			paymentTokenAddress: "0xc778417e063141139fce010982780140aa0cd5ab", // testnet address
+			
 		});
-
-		console.log("Create Buy Order Successful");
 	};
 
   const fulfillOrder = async () => {
     await Moralis.Plugins.opensea.fulfillOrder({
-      network: 'mainnet',
+      network: 'testnet',
       userAddress: web3Account,
-      order: {},
+      order: res,
     });
   }
+
+  	const getAssetOpensea = async () => {
+		const asset = await seaport.api.getAsset({
+			tokenAddress: values.tokenAddress,
+			tokenId: values.tokenId,
+		})
+		console.log(asset);
+	};
+
+	const getOrderOpensea = async () => {
+		// Get page 2 of all auctions, a.k.a. orders where `side == 1`
+		const { orders, count } = await seaport.api.getOrders({
+			asset_contract_address: values.tokenAddress,
+			token_id: values.tokenId,
+			side: 1,// 1: sell order,
+			sale_kind: 0 // 0: fixed price
+		})
+		console.log(orders[0])
+		console.log(count)
+	};
+
+	const createSellOrderOpensea = async () => {
+		
+	};
+
+	const createBuyOrderOpensea = async () => {
+
+		const offer = await seaport.createBuyOrder({
+			asset: {
+			  tokenId: values.tokenId,
+			  tokenAddress: values.tokenAddress,
+			  schemaName:  "ERC721" // WyvernSchemaName. If omitted, defaults to 'ERC721'. Other options include 'ERC20' and 'ERC1155'
+			},
+			accountAddress: web3Account,
+			// Value of the offer, in units of the payment token (or wrapped ETH if none is specified):
+			startAmount: 0.001,
+		  })
+
+		console.log(offer);
+	
+	};
+
+	const fulfillOrderOpensea = async () => {
+		const { orders, count } = await seaport.api.getOrders({
+			asset_contract_address: values.tokenAddress,
+			token_id: values.tokenId,
+			side: 1,// 1: sell order,
+			sale_kind: 0 // 0: fixed price
+		}).catch(err => console.log(err));
+
+		const transactionHash = await seaport.fulfillOrder({ 
+			order:  orders[0], accountAddress: web3Account 
+		}).catch(err => console.log(err));
+		console.log(transactionHash)
+	}
+
 
   useEffect(() => {
 		if (isInitialized) {
@@ -149,6 +218,19 @@ export default function Home() {
           </button>
           <button onClick={fulfillOrder}>
             fulfillOrder
+          </button>
+						<br></br>
+		  <button onClick={getAssetOpensea}>
+            getAssetOpensea
+          </button>
+          <button onClick={getOrderOpensea}>
+            getOrderOpensea
+          </button>
+          <button onClick={createBuyOrderOpensea}>
+            createBuyOrderOpensea
+          </button>
+          <button onClick={fulfillOrderOpensea}>
+            fulfillOrderOpensea
           </button>
           
         </>

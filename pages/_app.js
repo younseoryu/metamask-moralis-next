@@ -4,8 +4,8 @@ import "../styles/globals.css";
 function MyApp({ Component, pageProps }) {
   return (
     <MoralisProvider
-      appId='mdg1EwM6mQAqtpHuaSlxz6KPdg9WQNJTqflxcEAa'
-      serverUrl='https://6vkya9bhclwf.usemoralis.com:2053/server'
+      appId='m7bGDJLViQ7lh1vVeTy2U53Z6erXZdyvF7PauEKo'
+      serverUrl='https://yz0kxybv43ot.usemoralis.com:2053/server'
     >
       <Component {...pageProps} />
     </MoralisProvider>
