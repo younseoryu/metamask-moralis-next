@@ -164,28 +164,28 @@ export default function Home() {
 		const provider = await detectEthereumProvider();
 
 		if (provider) {
-		// From now on, this should always be true:
-		// provider === window.ethereum
-		const seaport = new OpenSeaPort(provider, {
-			// 	networkName: Network.Main,
-			//   apiKey: '2d3ddf54946e4569b7cd1df8daca6e4a'
-			networkName: Network.Rinkeby,
-			apiKey: '5bec8ae0372044cab1bef0d866c98618' //testnet
-		})
+			// From now on, this should always be true:
+			// provider === window.ethereum
+			const seaport = new OpenSeaPort(provider, {
+				// 	networkName: Network.Main,
+				//   apiKey: '2d3ddf54946e4569b7cd1df8daca6e4a'
+				networkName: Network.Rinkeby,
+				apiKey: '5bec8ae0372044cab1bef0d866c98618' //testnet
+			})
 
-		const { orders, count } = await seaport.api.getOrders({
-			asset_contract_address: values.tokenAddress,
-			token_id: values.tokenId,
-			side: 1,// 1: sell order,
-			sale_kind: 0 // 0: fixed price
-		}).catch(err => console.log(err));
+			const { orders, count } = await seaport.api.getOrders({
+				asset_contract_address: values.tokenAddress,
+				token_id: values.tokenId,
+				side: 1,// 1: sell order,
+				sale_kind: 0 // 0: fixed price
+			}).catch(err => console.log(err));
 
-		const transactionHash = await seaport.fulfillOrder({ 
-			order:  orders[0], accountAddress: web3Account 
-		}).catch(err => console.log(err));
-		console.log(transactionHash)
+			const transactionHash = await seaport.fulfillOrder({ 
+				order:  orders[0], accountAddress: web3Account 
+			}).catch(err => console.log(err));
+			console.log(transactionHash)
 		} else {
-		console.log('Please install MetaMask!');
+			console.log('Please install MetaMask!');
 		}
 
 
